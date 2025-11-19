@@ -15,6 +15,9 @@ export const goodsFromServer = [
   'Garlic',
 ];
 
+const SORT_FIELD_ALPHABETICALLY = 'alphabetically';
+const SORT_FIELD_LENGTH = 'length';
+
 export const GoodList = ({ goods }) => (
   <ul className="GoodList">
     {goods.map(good => (
@@ -25,64 +28,99 @@ export const GoodList = ({ goods }) => (
   </ul>
 );
 
+function getPreparedGoods(goods, { sortField , reverse, query}) {
+  let preparedGoods = [...goods];
+  
+  if (query) {
+    preparedGoods = preparedGoods.filter(good => good.includes(query));
+  }
+
+  if(sortField) {
+    switch (sortField) {
+      case SORT_FIELD_ALPHABETICALLY:
+        preparedGoods.sort();
+        break;
+      case SORT_FIELD_LENGTH:
+        preparedGoods.sort((a, b) => a.length - b.length);
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (reverse) {
+    preparedGoods.reverse();
+  }
+
+  return preparedGoods;
+
+}
+
+
 export const App = () => {
-  const [sortField, setSortField] = useState(goodsFromServer);
+  const [sortField, setSortField] = useState('');
+  const [reverse, setReverse] = useState(false);
 
-  function sortAlphabetically() {
-    const sortedGoods = [...sortField].sort();
 
-    setSortField(sortedGoods);
-  }
+  const visibleGoods = getPreparedGoods(goodsFromServer, { sortField, reverse });
 
-  function sortLenghtly() {
-    const sortedGoods = [...sortField].sort(
-      (good1, good2) => good1.length - good2.length,
-    );
 
-    setSortField(sortedGoods);
-  }
-
-  function reverseList() {
-    setSortField([...sortField].reverse());
-  }
 
   return (
     <div className="section content">
       <div className="buttons">
         <button
           type="button"
-          className="button is-info is-light"
-          onClick={() => sortAlphabetically()}
+          className={`button is-info ${sortField === SORT_FIELD_ALPHABETICALLY ? '' : 'is-light'}`}
+          onClick={
+            () => setSortField(SORT_FIELD_ALPHABETICALLY)
+          }
         >
           Sort alphabetically
         </button>
 
         <button
           type="button"
-          className="button is-success is-light"
-          onClick={() => sortLenghtly()}
+          className={`
+            button 
+            is-success 
+            ${sortField === SORT_FIELD_LENGTH ? '' : 'is-light'}
+          `}
+          
+          onClick={
+            () => setSortField(SORT_FIELD_LENGTH)
+          }
         >
           Sort by length
         </button>
 
         <button
           type="button"
-          className="button is-warning is-light"
-          onClick={reverseList}
+          className={`
+            button 
+            is-warning 
+            ${reverse === true ? '' : 'is-light'}
+          `}
+          onClick={
+            () => setReverse(!reverse)
+          }
         >
           Reverse
         </button>
 
         <button
           type="button"
-          className="button is-danger is-light"
-          onClick={() => setSortField(goodsFromServer)}
+          className="button is-danger"
+          style={sortField === '' ? { display: 'none' } : {}}
+          onClick={
+            () => setSortField('')
+          }
         >
           Reset
         </button>
       </div>
 
-      <GoodList goods={sortField} />
+      <GoodList goods={visibleGoods} />
     </div>
   );
 };
