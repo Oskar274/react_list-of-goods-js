@@ -110,7 +110,11 @@ export const App = () => {
 
         <button
           type="button"
-          className="button is-danger"
+          className={`
+            button 
+            is-danger 
+            ${sortField === '' ? 'is-light' : ''}
+          `}
           style={sortField === '' ? { display: 'none' } : {}}
           onClick={
             () => setSortField('')
